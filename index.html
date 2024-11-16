@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Management System</title>
+</head>
+<body style="background-color: bisque;">
+    <h1>Waste Management System</h1>
+    
+    <!-- Form to add a complaint -->
+    <h2 style="color:blue">Add a New Complaint</h2>
+    <form id="complaintForm">
+        <input type="text" id="description" placeholder="Complaint Description" required>
+        <input type="number" id="urgency" placeholder="Urgency (1-5)" required>
+        <button type="submit">Submit Complaint</button>
+    </form>
+
+    <h2 style="color:brown">Complaints List</h2>
+    <ul id="complaintsList"></ul>
+
+    <script>
+        const backendUrl = 'http://localhost:3005';
+
+        // Function to fetch all complaints
+        async function fetchComplaints() {
+            const response = await fetch(`${backendUrl}/complaints`);
+            const complaints = await response.json();
+            const complaintsList = document.getElementById('complaintsList');
+            complaintsList.innerHTML = complaints.map(c => `<li>${c.description} - Urgency: ${c.urgency}</li>`).join('');
+        }
+
+        // Submit form event listener to add a new complaint
+        document.getElementById('complaintForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const description = document.getElementById('description').value;
+            const urgency = document.getElementById('urgency').value;
+
+            await fetch(`${backendUrl}/complaints`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ description, urgency: parseInt(urgency) }),
+            });
+
+            // Clear form and refresh complaints list
+            document.getElementById('complaintForm').reset();
+            fetchComplaints();
+        });
+
+        // Fetch complaints when the page loads
+        fetchComplaints();
+    </script>
+</body>
+</html>
